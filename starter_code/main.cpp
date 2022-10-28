@@ -53,6 +53,11 @@ void input_handler(unsigned char c, int x, int y){
 
 }
 
+void special_input_handler(int c, int x, int y){
+
+}
+
+
 int main(int argc, char**argv){
     glutInit(&argc, argv);
 
@@ -68,8 +73,8 @@ int main(int argc, char**argv){
     glutReshapeFunc(reshape_window);
 
     glutTimerFunc(0, update_FPS, 0);
-
     glutKeyboardFunc(input_handler);
+    glutSpecialFunc(special_input_handler); /* for special keyboard keys [i.e. UP key] */
     /* set the intial window background */
     init_window_background();
 
