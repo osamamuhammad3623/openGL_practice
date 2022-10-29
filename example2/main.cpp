@@ -1,10 +1,6 @@
 /* 
-This example/mini project is a square that moves from left to right
-    and vice versa, on the X-axis.
-
-- The square speed is controllable in runtime [UP & DOWN keys]
-- The width & height are configurable
-- Pressing ESC closes the window.
+This example/mini-project focuses on coloring primitive shapes.
+- Drawing 2 triangles with different colors.
 */
 
 #include<GL/gl.h>
@@ -13,23 +9,9 @@ This example/mini project is a square that moves from left to right
 
 #define FPS     (60)
 
-enum Direction{
-    LEFT, RIGHT
-};
-
-struct Square{
-    float x_pos{0};
-    int8_t width{10};
-    int8_t height{10};
-    float speed{3};
-
-    Direction state{RIGHT};
-};
-
-Square square;
 
 void init_window_background(void){
-    glClearColor(0.5,0.25,1,1);
+    glClearColor(0,1,1,1);
 }
 
 void reshape_window(int w, int h){
@@ -43,38 +25,33 @@ void reshape_window(int w, int h){
 }
 
 void draw(void){
-    /* Drawing the square */
+
+    /* to change the fill-color of shapes, you just have to change
+        the color [color state]
+    */
+    /* changing color to red */
+    glColor3f(1,0,0);
+
     glBegin(GL_POLYGON);
 
-    glVertex2f(square.x_pos,square.height/2);
-    glVertex2f(square.x_pos,-(square.height/2));
-    glVertex2f(square.x_pos+square.width,-(square.height/2));
-    glVertex2f(square.x_pos+square.width,square.height/2);
+    glVertex2f(-50, 0);
+    glVertex2f(50, 0);
+    glVertex2f(0, 60);
 
     glEnd();
 
-    /* Managing movement logic */
-    switch (square.state)
-    {
-    case 1:
-        if(square.x_pos<(100-square.width)){
-            square.x_pos+=square.speed;
-        }else{
-            square.state=LEFT;
-        }
-        break;
 
-    case 0:
-        if(square.x_pos>(-100)){
-            square.x_pos-=square.speed;
-        }else{
-            square.state=RIGHT;
-        }
-        break;
+    /* changing color ro blue */
+    glColor3f(0,0,1);
 
-    default:
-        break;
-    }
+    glBegin(GL_POLYGON);
+
+    glVertex2f(-50, 0);
+    glVertex2f(50, 0);
+    glVertex2f(0, -60);
+
+    glEnd();
+
 }
 
 void update(void){
@@ -101,18 +78,6 @@ void input_handler(unsigned char c, int x, int y){
     }
 }
 
-void special_input_handler(int c, int x, int y){
-    if(c == GLUT_KEY_UP){
-        square.speed += 0.5;
-    
-    }else if (c == GLUT_KEY_DOWN){
-        /* if speed became negative, the square will move in the opposite direction */
-        if(square.speed>=0.5){
-            square.speed-= 0.5;
-        }
-    }
-}
-
 int main(int argc, char**argv){
     glutInit(&argc, argv);
 
@@ -128,7 +93,6 @@ int main(int argc, char**argv){
     glutReshapeFunc(reshape_window);
     glutTimerFunc(0, update_FPS, 0);
     glutKeyboardFunc(input_handler);
-    glutSpecialFunc(special_input_handler);
     /* set the intial window background */
     init_window_background();
 
