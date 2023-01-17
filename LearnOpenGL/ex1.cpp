@@ -74,6 +74,5 @@ int main(void) {
 
     glfwTerminate();
 
-    //24
     return 0;
 }
