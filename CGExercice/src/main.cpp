@@ -1,6 +1,8 @@
 #include "GpuLayer/GpuLayer.h"
 #include <GLFW/glfw3.h>
 #include <algorithm>
+#include <iostream>
+
 
 #define RGBA_COLOR(r, g, b, a) ((r) | (g << 8) | (b << 16) | (a << 24))
 
@@ -109,7 +111,7 @@ void DrawCircle(uint32_t* pixels, int cx, int cy, int r, uint32_t color)
 // 	}
 // }
 
-void drawRectangle(uint32_t* pixels, int ox, int oy, int length, int height, int color){
+void drawRectangle(uint32_t* pixels, float ox, float oy, float length, float height, int color){
 	for(int i=ox; i < ox+length; i++){
 		for(int j = oy; j < oy+height; j++){
 			pixels[j*WindowWidth + i] = color;
@@ -135,6 +137,12 @@ int main()
 	pixels = new uint32_t[WindowWidth * WindowHeight];
 
 
+	float x=0;
+	float y=0;
+	float length=100;
+	float height=100;
+	float speedx=0.5;
+	float speedy=0.5;
 	while (!glfwWindowShouldClose(window))
 	{
 		// events
@@ -142,12 +150,26 @@ int main()
 		// clear screen
 		std::fill(pixels, pixels + WindowWidth * WindowHeight, RGBA_COLOR(0, 0, 0, 0));
 
+		drawRectangle(pixels, x,y,length,height,RGBA_COLOR(255,0,0,0));
 
-		//DrawCircle(pixels, cx/10,300, 150, RGBA_COLOR(255,0,0,0));
-		drawRectangle(pixels, 400,300,100,100,RGBA_COLOR(255,0,0,0));
+		if(y == 0){
+			speedy=1;
+
+		}else if (y+height > WindowHeight-1){
+			speedy=-1;
+		}
+
+		if(x == 0){
+			speedx=1;
+
+		}else if (x+length > WindowWidth-1){
+			speedx=-1;
+		}
+		x+= speedx;
+		y+= speedy;
+
 
 		framebuffer->Present(pixels);
-
 		glfwSwapBuffers(window);
 	}
 
