@@ -15,7 +15,7 @@ uint32_t* pixels = nullptr;
 
 void OnResize(GLFWwindow* window, int width, int height);
 
-void DrawCircle(uint32_t* pixels, int cx, int cy, int r, uint32_t color)
+void DrawCircle(uint32_t* pixels, int &cx, int &cy, int &r, uint32_t &color)
 {
 	float half_raduis = 0.5f * r;
 	float topleft_x = cx - half_raduis;
@@ -38,22 +38,6 @@ void DrawCircle(uint32_t* pixels, int cx, int cy, int r, uint32_t color)
 		}
 	}
 }
-
-// bool mouse_on_circle(int cx, int cy, int r, double mousex, double mousey)
-// {
-// 	float x = (float)mousex - (float)cx;
-// 	float y = (float)mousey - (float)cy;
-// 	float dist = sqrtf(x * x + y * y);
-
-// 	std::cout << dist << "\n";
-
-// 	if (dist <= (r * 0.5f))
-// 		return true;
-
-// 	return false;
-// }
-
-
 // struct Vertex
 // {
 // 	Vertex() = default;
@@ -111,12 +95,23 @@ void DrawCircle(uint32_t* pixels, int cx, int cy, int r, uint32_t color)
 // 	}
 // }
 
-void drawRectangle(uint32_t* pixels, float ox, float oy, float length, float height, int color){
+void drawRectangle(uint32_t* pixels, float &ox, float &oy, float &length, float &height, int &color){
 	for(int i=ox; i < ox+length; i++){
 		for(int j = oy; j < oy+height; j++){
 			pixels[j*WindowWidth + i] = color;
 		}
 	}
+}
+
+bool mouseOnRectangle(double mx, double &my, float &ox, float &oy, float &length, float &height){
+	bool result= false;
+	if (mx <= ox+length && mx >= ox && my <= oy+height && my >= oy){
+		result = true;
+	}else{
+		result = false;
+	}
+
+	return result;
 }
 
 
@@ -128,7 +123,7 @@ int main()
 		return 0;
 	}
 
-	GLFWwindow* window = glfwCreateWindow(WindowWidth, WindowHeight, "software renderer", nullptr, nullptr);
+	GLFWwindow* window = glfwCreateWindow(WindowWidth, WindowHeight, "CG", nullptr, nullptr);
 
 	glfwSetWindowSizeCallback(window, OnResize);
 	GpuLayer::Init(window);
@@ -137,12 +132,18 @@ int main()
 	pixels = new uint32_t[WindowWidth * WindowHeight];
 
 
+	// rectangle attributes
 	float x=0;
 	float y=0;
 	float length=100;
 	float height=100;
 	float speedx=0.5;
 	float speedy=0.5;
+	int color =  RGBA_COLOR(255,0,0,0);
+
+	// mouse attributes
+	double mx{} , my{};
+
 	while (!glfwWindowShouldClose(window))
 	{
 		// events
@@ -150,20 +151,33 @@ int main()
 		// clear screen
 		std::fill(pixels, pixels + WindowWidth * WindowHeight, RGBA_COLOR(0, 0, 0, 0));
 
-		drawRectangle(pixels, x,y,length,height,RGBA_COLOR(255,0,0,0));
+		drawRectangle(pixels, x,y,length,height,color);
+	
+		glfwGetCursorPos(window, &mx, &my);
+
+		if(mouseOnRectangle(mx,my,x,y,length,height)){
+			
+			// if left mouse click is pressed when cursor is on the rectangle, close the app
+			if(glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS){
+				glfwSetWindowShouldClose(window,true);
+			}
+			color = RGBA_COLOR(0,255,0,0);
+		}else{
+			color = RGBA_COLOR(255,0,0,0);
+		}
 
 		if(y == 0){
-			speedy=1;
+			speedy=0.5;
 
 		}else if (y+height > WindowHeight-1){
-			speedy=-1;
+			speedy=-0.5;
 		}
 
 		if(x == 0){
-			speedx=1;
+			speedx=0.5;
 
 		}else if (x+length > WindowWidth-1){
-			speedx=-1;
+			speedx=-0.5;
 		}
 		x+= speedx;
 		y+= speedy;
@@ -183,8 +197,6 @@ void OnResize(GLFWwindow* window, int width, int height)
 {
 	WindowWidth = width;
 	WindowHeight = height;
-
-	std::cout << "window resized: " << width << "x" << height << "\n";
 
 	framebuffer->Resize(width, height);
 	delete[] pixels;
